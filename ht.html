@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <style>
+        .settings {
+            position: fixed;
+            z-index: 2;
+            right: 0;
+            width: 20%;
+            height: 50%;
+            text-align: center;
+            color: white;
+            /* background-color: green; */
+        }
+
+        h4 {}
+
+        canvas {
+            margin: 0;
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            z-index: 1;
+        }
+
+        html {
+            margin: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        body {
+            margin: 0;
+            background-color: black;
+        }
+
+        input {
+            width: 100%;
+            text-align: center;
+            font-size: 12px;
+            outline: none;
+        }
+
+        .content {
+            color: white;
+        }
+
+        .tag {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0 22px 0 22px;
+            flex: 1;
+        }
+
+        button {
+            text-align: center;
+            cursor: pointer;
+        }
+
+        .ctrl {
+            flex: 1;
+            background: transparent;
+            color: white;
+            border: 1px solid white;
+            padding: 0;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 1%;
+            width: 100%;
+
+
+        }
+
+        .tttag {
+            font-size: 12px;
+            margin-right: 10px;
+            padding: 1%;
+            width: 100%;
+        }
+
+        button:hover {
+            background-color: aliceblue;
+            color: black;
+        }
+
+        .content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: row;
+        }
+
+        .tttag {
+            height: 70%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+            align-items: center;
+        }
+
+        .info {
+            height: 70%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 1%;
+        }
+
+        .attributes {
+            width: 100%;
+            margin: 0;
+        }
+
+        p {
+            width: 100%;
+            text-align: left;
+            margin: 0;
+            margin-left: 10%;
+            font-weight: 700;
+            /* background-color: aliceblue; */
+        }
+
+        @keyframes shows {
+            from {
+                transform: translateY(-300px);
+            }
+
+            to {
+                transform: translateY(0);
+            }
+        }
+
+        .title {
+            cursor: pointer;
+        }
+
+        .title:hover {
+            animation: shows 3s 1 ease-in-out linear forwards;
+        }
+    </style>
+    <canvas></canvas>
+    <div class="settings">
+        <div class="title">
+            <h4>SETTINGS</h2>
+        </div>
+        <div class="content">
+            <div class="tttag" style="flex: 0.5;">
+                <div class="attributes">
+                    <p>SnowSize: </p>
+                </div>
+                <div class="attributes">
+                    <p style="text-decoration: line-through;">Gravity: </p>
+                </div>
+                <div class="attributes">
+                    <p>SnowStormR: </p>
+                </div>
+                <div class="attributes">
+                    <p>FallingSpeed: </p>
+                </div>
+                <div class="attributes">
+                    <p>NumberOfSnow: </p>
+                </div>
+            </div>
+            <div class="info" style="flex: 3;">
+                <div class="tag  attr">
+                    <button class="ctrl in4" value="1">1</button>
+                    <button class="ctrl dec">-</button>
+                    <button class="ctrl inc">+</button>
+                </div>
+                <div class="tag  attr">
+                    <button class="ctrl in4" value="1">1</button>
+                    <button class="ctrl dec">-</button>
+                    <button class="ctrl inc">+</button>
+                </div>
+                <div class="tag  attr">
+                    <button class="ctrl in4" value="1">1</button>
+                    <button class="ctrl dec">-</button>
+                    <button class="ctrl inc">+</button>
+                </div>
+                <div class="tag  attr">
+                    <button class="ctrl in4" value="1">1</button>
+                    <button class="ctrl dec">-</button>
+                    <button class="ctrl inc">+</button>
+                </div>
+                <div class="tag  attr">
+                    <button class="ctrl in4" value="1">1</button>
+                    <button class="ctrl dec">-</button>
+                    <button class="ctrl inc">+</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- SCRIPT NÀY ĐỂ LƯU NHỮNG THÔNG TIN VỀ BÃO TUYẾT -->
+    <script>
+        let snowInformations = [
+            {
+                // done
+                name: "SnowSize",
+                value: 1.5
+            }, {
+
+                name: "Gravity",
+                value: 0.25,
+            }, {
+                // done
+                name: "SnowStormR",
+                value: 30,
+            }, {
+                // done
+                name: "FallingSpeed",
+                value: 0.25,
+                // Giá trị này sẽ nhân vào tốc độ velocityX và velocityY
+            }, {
+                name: "NumberOfSnow",
+                value: 300,
+            }
+        ]
+
+    </script>
+    <!-- SCRIPT NÀY ĐỂ LÀM TUYẾT RƠI -->
+    <script>
+        const canvas = document.querySelector("canvas");
+        const ctx = canvas.getContext("2d")
+        const cw = canvas.width = window.innerWidth;
+        const ch = canvas.height = window.innerHeight;
+
+        let isSpace = false;
+
+        let index = 0;
+        let arr = []
+        let mouse = {
+            x: null,
+            y: null
+        }
+
+        function Bubble(x, y, velocityX, velocityY, radius, index) {
+            this.x = x;
+            this.y = y;
+            this.velocityX = velocityX
+            this.velocityY = velocityY
+            this.radius = radius
+            this.index = index;
+            this.angle = this.angle = Math.atan2(this.y - mouse.y, this.x - mouse.x)
+            this.gravity = snowInformations[1].value
+            this.orbitRadius = getRandomInt(1, snowInformations[2].value);  // Bán kính đường tròn mà bubble sẽ di chuyển quanh (có thể thay đổi)
+
+            this.move = () => {
+                this.x += this.velocityX
+                this.y += this.velocityY
+            }
+            this.draw = () => {
+                ctx.beginPath()
+                ctx.arc(this.x, this.y, this.radius, 0, 2 * Math.PI);
+                ctx.stroke()
+                ctx.fill()
+                ctx.fillStyle = "white"
+                ctx.strokeStyle = "white"
+            }
+            this.remove = () => {
+                let position = arr.findIndex(e => e.index == index)
+                removeElementAtIndex(arr, position);
+                this.spawn()
+            }
+            this.update = () => {
+                this.draw()
+
+                if (Math.abs(this.x - mouse.x) <= snowInformations[2].value && Math.abs(this.y - mouse.y) <= snowInformations[2].value) {
+                    this.moveInCircle()       
+                    this.connectToMouse()
+                } else {
+                    this.move()
+                }
+
+                if (this.y >= ch) {
+                    this.remove();
+                }
+            }
+            this.moveInCircle = () => {
+                this.angle += 0.25;  // Tăng dần góc để di chuyển (tốc độ góc)
+                this.x = mouse.x + this.orbitRadius * Math.cos(this.angle);
+                this.y = mouse.y + this.orbitRadius * Math.sin(this.angle);
+                this.orbitRadius += 0.25;
+            }
+            this.spawn = () => {
+                let numberOfSnow = arr.length
+                if (numberOfSnow < snowInformations[4].value) {
+                    createBubbles();
+                    createBubbles();
+                }
+            }
+            this.connectToMouse = () => {
+                ctx.beginPath()
+                ctx.moveTo(mouse.x, mouse.y)
+                ctx.lineTo(this.x, this.y)
+                ctx.strokeStyle = "white"
+                ctx.fillStyle = "white"
+                ctx.stroke()
+                ctx.fill()
+                console.log("nối");
+                
+            }
+        }
+
+        function createBubbles() {
+            let x = getRandomInt(0, cw);
+            let y = getRandomInt(0, ch);
+            let velocityX = getRandomInt(-10, 10) / 10;
+            let velocityY = getRandomInt(3, 5) * snowInformations[3].value;
+            let it = new Bubble(x, y, velocityX, velocityY, snowInformations[0].value, index)
+            arr.push(it)
+            index++
+        }
+        for (let i = 0; i <= 300; i++) {
+            createBubbles()
+        }
+
+        function getRandomInt(min, max) {
+            min = Math.ceil(min);
+            max = Math.floor(max);
+            let returnVal = Math.floor(Math.random() * (max - min + 1)) + min;
+            if (returnVal == 0) {
+                Math.floor(Math.random() * (max - min + 1)) + min;
+            } else {
+                return returnVal;
+            }
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, cw, ch)
+            requestAnimationFrame(animate);
+            arr.forEach(e => {
+                e.update()
+            })
+        }
+        window.addEventListener("mousemove", (e) => {
+            mouse.x = e.clientX
+            mouse.y = e.clientY
+        })
+
+        function removeElementAtIndex(arr, index, mutate = true) {
+            if (mutate) {
+                // Thay đổi mảng gốc, sử dụng splice
+                arr.splice(index, 1);
+                return arr;
+            } else {
+                // Trả về mảng mới, sử dụng filter
+                return arr.filter((_, i) => i !== index);
+            }
+        }
+
+        function customActions() {
+
+        }
+
+        document.addEventListener("keydown", (e) => {
+            if (e.code === "Space") {
+
+            }
+        })
+        animate()
+    </script>
+    <!-- SCRIPT NÀY ĐỂ LÀM SETTINGS -->
+    <script>
+        let attrs = document.querySelectorAll(".attr");
+        let objects = []
+        let changes = [0.25, 0.05, 5, 0.25, 100]
+        let primaryValues = [1, 0.1, 30, 0.25, 300]
+
+        let updateListAttribution = () => {
+            attrs.forEach((e, i) => {
+                objects.push({
+                    index: i,
+                    value: primaryValues[i],
+                    valueRegion: e.querySelector(".in4"),
+                    inc: e.querySelector(".inc"),
+                    dec: e.querySelector(".dec"),
+                    change: changes[i],
+                    actions: []
+                })
+            })
+        }
+
+        let updateIncreasingButtons = () => {
+            objects.forEach((e) => {
+                if (e != null) {
+                    e.inc.addEventListener("click", (element) => {
+                        e.value += e.change;
+                        updateInformations(e.index)
+                    })
+                }
+            })
+        }
+
+        let updateDecreasingButtons = () => {
+            objects.forEach((e) => {
+                if (e != null) {
+                    e.dec.addEventListener("click", (element) => {
+                        e.value -= e.change;
+                        updateInformations()
+                    })
+                }
+            })
+        }
+
+        let updateInformations = () => {
+            objects.forEach((e) => {
+                let innerValue = e.value.toFixed(2);
+                e.valueRegion.innerText = (innerValue > 1000 ? (Number(innerValue) / 1000 + "k") : innerValue);
+                snowInformations[e.index].value = innerValue;
+            })
+        }
+        let main = () => {
+            updateListAttribution()
+            updateIncreasingButtons()
+            updateDecreasingButtons()
+            updateInformations()
+        }
+        main()
+
+        document.querySelector(".title").addEventListener("click", () => {
+            let content = document.querySelector(".content")
+            let displayCurrent = content.style.display
+            content.style.display = (displayCurrent === "flex" ? "none" : "flex")
+        })
+    </script>
+
+    <!-- TỔNG HỢP CÁC CHỨC NĂNG -->
+</body>
+
+</html>
